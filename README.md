@@ -1,6 +1,6 @@
-# ===============================================================
-# OPTION 1: DATA WAREHOUSING QUALITY ANALYSIS (GOOGLE COLAB)
-# ===============================================================
+
+ DATA WAREHOUSING QUALITY ANALYSIS (GOOGLE COLAB)
+
 
 !pip install pandas numpy matplotlib seaborn --quiet
 
@@ -13,16 +13,16 @@ from google.colab import files
 print("Upload your 3 dataset files: (Sales, Features, Stores)")
 uploaded = files.upload()
 
-# Load datasets
+ Load datasets
 sales = pd.read_csv("sales data-set.csv")
 features = pd.read_csv("Features data set.csv")
 stores = pd.read_csv("stores data-set.csv")
 
 print("\nFiles loaded successfully!")
 
-# ===============================================================
-# 1. BASIC STRUCTURE (STAR SCHEMA CHECK)
-# ===============================================================
+
+ 1. BASIC STRUCTURE (STAR SCHEMA CHECK)
+
 
 print("\n=== Dataset Shapes ===")
 print("Sales (Fact Table):", sales.shape)
@@ -34,9 +34,9 @@ print("Sales:", sales.columns.tolist())
 print("Features:", features.columns.tolist())
 print("Stores:", stores.columns.tolist())
 
-# ===============================================================
-# 2. CHECK REFERENTIAL INTEGRITY (KEY QUALITY)
-# ===============================================================
+
+ 2. CHECK REFERENTIAL INTEGRITY (KEY QUALITY)
+
 
 print("\n=== REFERENTIAL INTEGRITY CHECK ===")
 
@@ -55,9 +55,7 @@ date_mismatch = set(sales["Date"]) - set(features["Date"])
 print("\nDates missing in Features (but present in Sales): sample 20")
 print(list(date_mismatch)[:20])
 
-# ===============================================================
-# 3. COMPLETENESS CHECK (WAREHOUSE LOADING ISSUES)
-# ===============================================================
+ 3. COMPLETENESS CHECK (WAREHOUSE LOADING ISSUES)
 
 print("\n=== COMPLETENESS CHECK ===")
 
@@ -69,7 +67,7 @@ print("\nMissing values in Sales:\n", missing_sales)
 print("\nMissing values in Features:\n", missing_features)
 print("\nMissing values in Stores:\n", missing_stores)
 
-# Export missing summary
+ Export missing summary
 missing_summary = pd.DataFrame({
     "Sales": missing_sales,
     "Features": missing_features.reindex(missing_sales.index, fill_value=0),
@@ -77,9 +75,7 @@ missing_summary = pd.DataFrame({
 })
 missing_summary.to_csv("missing_summary.csv")
 
-# ===============================================================
-# 4. CONSISTENCY CHECK (ETL TRANSFORMATION ISSUES)
-# ===============================================================
+ 4. CONSISTENCY CHECK (ETL TRANSFORMATION ISSUES)
 
 print("\n=== CONSISTENCY CHECK ===")
 
@@ -100,9 +96,7 @@ print("\nInvalid negative Weekly_Sales:", invalid_neg_sales)
 wrong_types = features.select_dtypes(include="object").columns
 print("\nColumns with potential formatting inconsistencies:", list(wrong_types))
 
-# ===============================================================
-# 5. VALIDITY CHECK (BUSINESS RULES)
-# ===============================================================
+5. VALIDITY CHECK (BUSINESS RULES)
 
 print("\n=== VALIDITY CHECK ===")
 
@@ -119,9 +113,9 @@ for col in markdown_cols:
     outliers = features[features[col] > features[col].quantile(0.99)]
     print(f"Outliers in {col}:", outliers.shape[0])
 
-# ===============================================================
-# 6. ACCURACY CHECK (OUTLIERS + SUSPICIOUS RANGES)
-# ===============================================================
+
+ 6. ACCURACY CHECK (OUTLIERS + SUSPICIOUS RANGES)
+
 
 print("\n=== ACCURACY CHECK ===")
 
@@ -139,9 +133,7 @@ sns.boxplot(x=sales["Weekly_Sales"])
 plt.title("Weekly Sales Outliers (Accuracy Check)")
 plt.show()
 
-# ===============================================================
-# 7. SLOWLY CHANGING DIMENSION (SCD) CHECK
-# ===============================================================
+ 7. SLOWLY CHANGING DIMENSION (SCD) CHECK
 
 print("\n=== SCD CHECK (Store Dimension Stability) ===")
 
@@ -153,9 +145,9 @@ violating_stores = scd_violations[(scd_violations["Type"] > 1) | (scd_violations
 print("\nStores with unexpected SCD changes (should not change):")
 print(violating_stores)
 
-# ===============================================================
-# 8. MERGE CHECK — FINAL STAR SCHEMA VALIDATION
-# ===============================================================
+
+ 8. MERGE CHECK — FINAL STAR SCHEMA VALIDATION
+
 
 merged = sales.merge(features, on=["Store", "Date"], how="left")
 merged = merged.merge(stores, on="Store", how="left")
